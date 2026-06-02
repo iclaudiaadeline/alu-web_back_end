@@ -5,7 +5,11 @@ Implements a cache that discards the least recently used item when full (LRU).
 """
 
 from collections import OrderedDict
-from base_caching import BaseCaching
+
+try:
+    from base_caching import BaseCaching
+except ImportError:
+    from caching.base_caching import BaseCaching
 
 
 class LRUCache(BaseCaching):

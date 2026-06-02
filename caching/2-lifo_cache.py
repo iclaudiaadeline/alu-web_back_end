@@ -5,7 +5,11 @@ Implements a cache that discards the most recently added/updated item when full 
 """
 
 from collections import OrderedDict
-from base_caching import BaseCaching
+
+try:
+    from base_caching import BaseCaching
+except ImportError:
+    from caching.base_caching import BaseCaching
 
 
 class LIFOCache(BaseCaching):
@@ -20,18 +24,15 @@ class LIFOCache(BaseCaching):
         """Add or update item; if over capacity discard the last inserted/updated."""
         if key is None or item is None:
             return
-        # If key exists, update and mark as most recent
-        if key in self._order:
-            # move to end to mark most recent
+        if key in self.cache_data:
             self._order.pop(key, None)
-        self._order[key] = None
-        self.cache_data[key] = item
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            # discard last inserted/updated
+        elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
             last = next(reversed(self._order))
             self._order.pop(last, None)
             self.cache_data.pop(last, None)
             print("DISCARD: {}".format(last))
+        self._order[key] = None
+        self.cache_data[key] = item
 
     def get(self, key):
         """Return value for key or None if not present."""

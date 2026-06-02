@@ -5,7 +5,11 @@ Implements a cache that discards the most recently used item when full (MRU).
 """
 
 from collections import OrderedDict
-from base_caching import BaseCaching
+
+try:
+    from base_caching import BaseCaching
+except ImportError:
+    from caching.base_caching import BaseCaching
 
 
 class MRUCache(BaseCaching):
@@ -20,17 +24,15 @@ class MRUCache(BaseCaching):
         """Add or update item; discard most recently used when full."""
         if key is None or item is None:
             return
-        # update usage: mark key as most recently used
-        if key in self._order:
+        if key in self.cache_data:
             self._order.pop(key, None)
-        self._order[key] = None
-        self.cache_data[key] = item
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            # discard most recently used (last)
+        elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
             mru = next(reversed(self._order))
             self._order.pop(mru, None)
             self.cache_data.pop(mru, None)
             print("DISCARD: {}".format(mru))
+        self._order[key] = None
+        self.cache_data[key] = item
 
     def get(self, key):
         """Return value for key and update its recentness."""

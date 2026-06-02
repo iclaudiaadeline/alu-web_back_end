@@ -4,7 +4,10 @@
 This module implements a simple caching system with no size limit.
 """
 
-from base_caching import BaseCaching
+try:
+    from base_caching import BaseCaching
+except ImportError:
+    from caching.base_caching import BaseCaching
 
 
 class BasicCache(BaseCaching):
