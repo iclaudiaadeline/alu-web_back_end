@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-""" Simple pagination
+"""
+Method named get_page that takes two integer
+arguments page with default value 1 and page_size with
+default value 10.
 """
 
 import csv
-from typing import List, Tuple
+from typing import List
+
+index_range = __import__('0-simple_helper_function').index_range
 
 
 class Server:
-    """ Paginate a database of popular baby names.
+    """Server class to paginate a database of popular baby names.
     """
     DATA_FILE = "Popular_Baby_Names.csv"
 
     def __init__(self):
+        """ Initialize instance. """
         self.__dataset = None
 
     def dataset(self) -> List[List]:
@@ -26,21 +32,15 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        """ Finds the correct indexes to paginate dataset.
-        """
-        assert type(page) == int
-        assert type(page_size) == int
-        assert page > 0
-        assert page_size > 0
-        csv_size = len(self.dataset())
-        start, end = index_range(page, page_size)
-        end = min(end, csv_size)
-        if start >= csv_size:
+        """ Output page of dataset. """
+        assert isinstance(page, int) and isinstance(page_size, int)
+        assert page > 0 and page_size > 0
+
+        indices = index_range(page, page_size)
+        start = indices[0]
+        end = indices[1]
+
+        try:
+            return self.dataset()[start:end]
+        except IndexError:
             return []
-        return self.dataset()[start:end]
-
-
-def index_range(page: int, page_size: int) -> Tuple[int, int]:
-    """ Return the appropriate page of the dataset.
-    """
-    return ((page - 1) * page_size, page * page_size)
