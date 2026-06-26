@@ -12,12 +12,12 @@ from flask_babel import Babel
 class Config():
     """ Configuration for babel translation """
     LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
 
 app = Flask(__name__)
 app.config.from_object(Config())
-Babel.default_locale = "en"
-Babel.default_timezone = "UTC"
 babel = Babel(app)
 
 
@@ -34,7 +34,7 @@ def get_locale():
 @app.route("/")
 def gettext():
     """get text"""
-    return render_template('3-index.html')
+    return render_template('4-index.html')
 
 
 if __name__ == "__main__":
