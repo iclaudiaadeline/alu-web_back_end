@@ -4,9 +4,23 @@ A Flask web application that mocks a user login system and displays.
 """
 
 from flask import Flask, request, g, render_template
+from flask_babel import Babel
 from typing import Optional, Dict, Any
 
 app = Flask(__name__)
+app.config['LANGUAGES'] = ["en", "fr"]
+app.config['BABEL_DEFAULT_LOCALE'] = "en"
+app.config['BABEL_DEFAULT_TIMEZONE'] = "UTC"
+babel = Babel(app)
+
+
+@babel.localeselector
+def get_locale():
+    """Select locale from request or default."""
+    lang = request.args.get('locale')
+    if lang in app.config['LANGUAGES']:
+        return lang
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 users: Dict[int, Dict[str, Optional[str]]] = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
