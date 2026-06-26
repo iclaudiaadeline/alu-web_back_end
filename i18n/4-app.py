@@ -1,41 +1,51 @@
 #!/usr/bin/env python3
 """
-Basic Flask app
+A Flask web application that mocks a user login system and displays.
 """
 
-import re
-import babel
-from flask import Flask, render_template, request
-from flask_babel import Babel
-
-
-class Config():
-    """ Configuration for babel translation """
-    LANGUAGES = ["en", "fr"]
-
+from flask import Flask, request, g, render_template
+from typing import Optional, Dict, Any
 
 app = Flask(__name__)
-app.config.from_object(Config())
-Babel.default_locale = "en"
-Babel.default_timezone = "UTC"
-babel = Babel(app)
+
+users: Dict[int, Dict[str, Optional[str]]] = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
 
 
-@babel.localeselector
-def get_locale():
-    """locale func"""
-    lang = request.args.get('locale')
-    if lang is not None:
-        if lang in app.config['LANGUAGES']:
-            return lang
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+def get_user() -> Optional[Dict[str, Any]]:
+    """
+    Get user by ID from the users dictionary.
+    :return: A user dictionary if found, otherwise None.
+    """
+    try:
+        user_id: Optional[str] = request.args.get('login_as')
+        if user_id is not None:
+            return users.get(int(user_id))
+    except (ValueError, TypeError):
+        return None
+    return None
 
 
-@app.route("/")
-def gettext():
-    """get text"""
-    return render_template('3-index.html')
+@app.before_request
+def before_request() -> None:
+    """
+    Set user information globally before each request.
+    """
+    g.user = get_user()
+
+
+@app.route('/')
+def index() -> str:
+    """
+    Render the index page.
+    :return: Rendered HTML content.
+    """
+    return render_template('5-index.html')
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000")
+    app.run(debug=True)
