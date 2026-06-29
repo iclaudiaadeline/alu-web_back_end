@@ -7,23 +7,17 @@ METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
 
 def log_stats(mongo_collection, option=None):
-    """ script that provides some stats about Nginx logs stored in MongoDB
-    """
+    """script that provides some stats about Nginx logs stored in MongoDB"""
     if option:
-        value = mongo_collection.count_documents({"method": option})
-        print(f"\tmethod {option}: {value}")
+        print(f"\tmethod {option}: "
+              f"{mongo_collection.count_documents({'method': option})}")
         return
-
-    result = mongo_collection.count_documents({})
-    print(f"{result} logs")
+    print(f"{mongo_collection.count_documents({})} logs")
     print("Methods:")
     for method in METHODS:
         log_stats(mongo_collection, method)
-    status_check = mongo_collection.count_documents(
-        {"method": "GET", "path": "/status"})
-    print(f"{status_check} status check")
+    print(f"{mongo_collection.count_documents({'method': 'GET', 'path': '/status'})} status check")
 
 
 if __name__ == "__main__":
-    nginx_collection = MongoClient('mongodb://127.0.0.1:27017').logs.nginx
-    log_stats(nginx_collection)
+    log_stats(MongoClient('mongodb://127.0.0.1:27017').logs.nginx)
